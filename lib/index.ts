@@ -65,15 +65,25 @@ class MongoCrossCursor {
   }
 
   async next() : Promise<unknown[]> {
-    const cmd = await this.client.db(this.namespace).command({
-      getMore: stringToLong(this.sharedCursor.cursorId),
-      collection: "articles",
-      batchSize: this.batchSize
-    }, {
-      session : fakeSessionBuilder(this.sharedCursor.sessionId)
-    });
+    return Promise.resolve()
+      .then(() => {
+        return this.client.db(this.namespace).command({
+          getMore: stringToLong(this.sharedCursor.cursorId),
+          collection: "articles",
+          batchSize: this.batchSize
+        }, {
+          session : fakeSessionBuilder(this.sharedCursor.sessionId)
+        });
+      }).then((result) => {
+        return result.cursor.nextBatch || [];
+      }).catch((error) => {
+        // No results remaining
+        if (error?.message?.indexOf("cursor id") !== -1) {
+          return Promise.resolve([]);
+        }
 
-    return cmd.cursor.nextBatch;
+        return Promise.reject(error);
+      });
   }
 
   async * iterate() {
