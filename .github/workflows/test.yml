@@ -1,0 +1,25 @@
+on: [push, pull_request]
+
+name: Test and Build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # checkout full tree
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - run: npm install
+      - run: npm run test test

@@ -1,17 +1,3 @@
-# Configs files
-.editorconfig
-jest.config.ts
-
-# Actions
-.github
-.travis.yml
-
-# folders
-example
-lib
-scripts
-test
-
 # Others
 .DS_Store
 node_modules
