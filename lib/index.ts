@@ -38,7 +38,7 @@ class MongoCrossCursor {
 
     // Close session now
     session.endSession();
-  
+
     const cmd = await db.command({
       find: cloned.namespace.collection,
       filter: cloned.filter,
@@ -56,7 +56,7 @@ class MongoCrossCursor {
     return new MongoCrossCursor(
       {
         sessionId: sessionId,
-        cursorId: cursorId 
+        cursorId: cursorId
       },
       castedFind.client,
       find.namespace.db,
@@ -69,7 +69,7 @@ class MongoCrossCursor {
       .then(() => {
         return this.client.db(this.namespace).command({
           getMore: stringToLong(this.sharedCursor.cursorId),
-          collection: "articles",
+          collection: this.collection,
           batchSize: this.batchSize
         }, {
           session : fakeSessionBuilder(this.sharedCursor.sessionId)
