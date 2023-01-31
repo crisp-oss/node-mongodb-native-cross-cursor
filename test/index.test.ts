@@ -21,8 +21,12 @@ describe("indexing", () => {
     CLIENT = client;
     COLLECTION = articles;
 
-    // Delete articles collection
-    await COLLECTION.drop();
+    try {
+      // Delete articles collection
+      await COLLECTION.drop();
+    } catch(e) {
+      // Collection could not exist
+    }
 
     const rawArticles : Article[] = [];
 
