@@ -103,4 +103,5 @@ class MongoCrossCursor {
   }
 }
 
+module.exports = MongoCrossCursor;
 export default MongoCrossCursor;
