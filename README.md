@@ -45,7 +45,7 @@ const instance = await MongoDBCrossCursor.initiate(
   })
 );
 
-// A shared cursor is now available you can re-use this cursor in a different worker
+// A shared cursor is now available. You can re-use this cursor in a different worker
 // {
 //    sessionId : "XXXXXXXX",
 //    cursorId  : "YYYYYYYY"
@@ -92,8 +92,6 @@ var MongoCrossCursor = require("mongodb-cross-cursor");
 const instance = new MongoDBCrossCursor(sharedCursor, client, "test", "articles", 1)
 
 // We can now fetch results, by iterating the cursor.
-const results = instance.next();
-
 for await (const result of instance.iterate()) {
   console.log(result);
 }
