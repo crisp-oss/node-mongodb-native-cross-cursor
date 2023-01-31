@@ -6,7 +6,7 @@ MongoDB Driver Extension allowing to use MongoDB cursors in a micro-service envi
 
 Copyright 2023 Crisp IM SAS. See LICENSE for copying information.
 
-* **📝 Implements**: [REST API Reference (V1)](https://docs.crisp.chat/references/rest-api/v1/) at revision: 16/01/2023
+* **📝 Implements**: [MongoDB v4 Driver](https://github.com/mongodb/node-mongodb-native/) at revision: 4.9
 * **😘 Maintainers**: [@baptistejamin](https://github.com/baptistejamin)
 
 ## Introduction
