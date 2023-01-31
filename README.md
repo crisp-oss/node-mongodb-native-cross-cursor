@@ -6,7 +6,7 @@ MongoDB Driver Extension allowing to use MongoDB cursors in a micro-service envi
 
 Copyright 2023 Crisp IM SAS. See LICENSE for copying information.
 
-* **📝 Implements**: [MongoDB v4 Driver](https://github.com/mongodb/node-mongodb-native/) at revision: 4.9
+* **📝 Implements**: [MongoDB NodeJS Driver](https://github.com/mongodb/node-mongodb-native/) at revision: 4.9
 * **😘 Maintainers**: [@baptistejamin](https://github.com/baptistejamin)
 
 ## Introduction
