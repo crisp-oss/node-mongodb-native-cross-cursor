@@ -11,6 +11,16 @@ type SharedCursor = {
   sessionId : string;
 }
 
+type CustomCommand = {
+  find : string,
+  filter : object,
+  hint? : string,
+  sort? : object,
+  skip? : number,
+  limit? : number,
+  batchSize : number;
+}
+
 class MongoCrossCursor {
   sharedCursor: SharedCursor;
   client: MongoClient;
@@ -39,15 +49,39 @@ class MongoCrossCursor {
     // Close session now
     session.endSession();
 
-    const cmd = await db.command({
+    const symbolsProperties = Object.getOwnPropertySymbols(castedFind);
+    const kFilter = symbolsProperties.find(symbol => symbol.description === "filter");
+    const kBuiltOptions = symbolsProperties.find(symbol => symbol.description === "builtOptions");
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const filter = castedFind[kFilter];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const builtOptions = castedFind[kBuiltOptions];
+
+    const _commandOptions = {
       find: cloned.namespace.collection,
-      filter: cloned.filter,
+      filter: filter,
       batchSize: 0,
-      hint: cloned.hint,
-      sort: cloned.sort,
-      skip: cloned.skip,
-      limit: cloned.limit
-    }, {
+    } as CustomCommand;
+
+    if (builtOptions.hint) {
+      _commandOptions.hint = builtOptions.hint;
+    }
+
+    if (builtOptions.sort) {
+      _commandOptions.sort = builtOptions.sort;
+    }
+
+    if (builtOptions.skip) {
+      _commandOptions.skip = builtOptions.skip;
+    }
+
+    if (builtOptions.limit) {
+      _commandOptions.limit = builtOptions.limit;
+    }
+
+    const cmd = await db.command(_commandOptions, {
       session : fakeSessionBuilder(sessionId)
     });
 

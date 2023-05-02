@@ -48,10 +48,16 @@ describe("indexing", () => {
   describe("Cursor", () => {
     it("It should result the first results", async () => {
       const find = COLLECTION
-        .find({})
+        .find({
+          index : {
+            $gte: 500
+          }
+        })
+        .skip(10)
         .sort({
           index : -1
-        });
+        })
+        .limit(300);
 
       const instance = await mongoCrossCursor.initiate(find);
 
@@ -62,7 +68,7 @@ describe("indexing", () => {
         count++;
       }
 
-      expect(count).toBe(1000);
+      expect(count).toBe(300);
 
       return Promise.resolve();
     });
