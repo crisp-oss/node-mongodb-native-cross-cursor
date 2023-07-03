@@ -73,4 +73,33 @@ describe("indexing", () => {
       return Promise.resolve();
     });
   });
+
+  describe("Projection", () => {
+    it("It should project", async () => {
+      const find = COLLECTION
+        .find({
+          index : {
+            $gte: 500
+          }
+        })
+        .project({
+          index: true
+        })
+        .limit(2);
+
+      const instance = await mongoCrossCursor.initiate(find);
+
+      const _articles = [];
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _article of instance.iterate()) {
+        _articles.push(_article);
+      }
+
+      expect((_articles[1] as Article).title).toBe(undefined);
+      expect((_articles[1] as Article).index).toBe(501);
+
+      return Promise.resolve();
+    });
+  });
 });

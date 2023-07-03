@@ -18,6 +18,7 @@ type CustomCommand = {
   sort? : object,
   skip? : number,
   limit? : number,
+  projection? : object,
   batchSize : number;
 }
 
@@ -36,7 +37,7 @@ class MongoCrossCursor {
     this.batchSize = batchSize;
   }
 
-  static async initiate(find : FindCursor<WithId<Document>>) : Promise<MongoCrossCursor> {
+  static async initiate(find : FindCursor<Document>) : Promise<MongoCrossCursor> {
     const cloned =  find.clone();
 
     const castedFind = cloned as ExtendedFindCursor;
@@ -81,6 +82,10 @@ class MongoCrossCursor {
       _commandOptions.limit = builtOptions.limit;
     }
 
+    if (builtOptions.projection) {
+      _commandOptions.projection = builtOptions.projection;
+    }
+
     const cmd = await db.command(_commandOptions, {
       session : fakeSessionBuilder(sessionId)
     });
@@ -104,7 +109,7 @@ class MongoCrossCursor {
         return this.client.db(this.namespace).command({
           getMore: stringToLong(this.sharedCursor.cursorId),
           collection: this.collection,
-          batchSize: this.batchSize
+          batchSize: this.batchSize,
         }, {
           session : fakeSessionBuilder(this.sharedCursor.sessionId)
         });
