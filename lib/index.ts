@@ -117,7 +117,8 @@ class MongoCrossCursor {
         return result.cursor.nextBatch || [];
       }).catch((error) => {
         // No results remaining
-        if (error?.message?.indexOf("cursor id") !== -1) {
+        if (error?.message?.indexOf("cursor id") !== -1  ||
+            error?.message?.indexOf("Cursor not found") !== -1) {
           return Promise.resolve([]);
         }
 
