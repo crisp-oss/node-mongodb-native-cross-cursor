@@ -4,12 +4,20 @@
   "author": "Baptiste Jamin <baptiste@crisp.chat> (https://crisp.chat)",
   "description": "A mongodb driver extension allowing to consume MongoDB cursors accross multiple instances",
   "main": "dist/index.js",
-  "tags": [
+  "keywords": [
     "mongodb",
     "cursor",
     "resume cursor"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crisp-oss/node-mongodb-native-cross-cursor.git"
+  },
+  "homepage": "https://github.com/crisp-oss/node-mongodb-native-cross-cursor#readme",
+  "bugs": {
+    "url": "https://github.com/crisp-oss/node-mongodb-native-cross-cursor/issues"
+  },
   "scripts": {
     "build": "rm -rf dist && tsc -p . ",
     "lint": "eslint lib test",
