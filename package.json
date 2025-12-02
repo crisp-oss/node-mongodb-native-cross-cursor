@@ -29,14 +29,23 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc -p .",
     "lint": "eslint lib test",
-    "test": "npm run lint && node_modules/jest/bin/jest.js --detectOpenHandles"
+    "test": "npm run lint && node_modules/jest/bin/jest.js --detectOpenHandles",
+    "test:mongodb:4": "npm install --no-save mongodb@^4 && npm run test",
+    "test:mongodb:5": "npm install --no-save mongodb@^5 && npm run test",
+    "test:mongodb:6": "npm install --no-save mongodb@^6 && npm run test",
+    "test:mongodb:7": "npm install --no-save mongodb@^7 && npm run test",
+    "test:all-versions": "npm run test:mongodb:4 && npm run test:mongodb:5 && npm run test:mongodb:6 && npm run test:mongodb:7"
   },
   "peerDependencies": {
-    "mongoose": "^6 || ^7"
+    "mongoose": "^6 || ^7",
+    "mongodb": "^4 || ^5 || ^6 || ^7"
   },
   "peerDependenciesMeta": {
     "mongoose": {
       "optional": true
+    },
+    "mongodb": {
+      "optional": false
     }
   },
   "devDependencies": {
