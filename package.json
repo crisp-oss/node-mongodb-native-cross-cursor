@@ -29,7 +29,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc -p . ",
     "lint": "eslint lib test",
-    "test": "npm run lint && node_modules/jest/bin/jest.js --detectOpenHandles"
+    "test": "npm run lint && npx jest --detectOpenHandles"
   },
   "devDependencies": {
     "@types/jest": "27.0.2",
