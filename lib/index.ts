@@ -1,6 +1,6 @@
-import { Document, FindCursor, WithId, MongoClient } from "mongodb";
+import { Document, FindCursor, WithId, MongoClient, ClientSession } from "mongodb";
 
-import { fakeSessionBuilder , stringToLong } from "./utils.js";
+import { fakeSessionBuilderV4, fakeSessionBuilderV6, stringToLong } from "./utils.js";
 
 interface ExtendedFindCursor extends FindCursor<WithId<Document>> {
   client: MongoClient
@@ -9,6 +9,29 @@ interface ExtendedFindCursor extends FindCursor<WithId<Document>> {
 type SharedCursor = {
   cursorId : string,
   sessionId : string;
+}
+
+type MongoDriverVersion = 4 | 5 | 6 | 7;
+
+// Detect MongoDB driver version by checking session structure
+// Defaults to 4 if detection fails
+function detectMongoDriverVersion(client: MongoClient): MongoDriverVersion {
+  try {
+    const testSession = client.startSession();
+    // MongoDB Driver 6+ has 'hasEnded' property
+    // MongoDB Driver 4/5 don't have it directly accessible
+    const hasHasEnded = "hasEnded" in testSession;
+    if (hasHasEnded) {
+      void testSession.endSession();
+      return 6; // Assume 6+ if hasEnded exists
+    }
+    // @ts-expect-error: testSession is not defined in the type
+    void testSession.endSession();
+    return 4; // Default to 4 for older versions
+  } catch {
+    // If detection fails, default to 4
+    return 4;
+  }
 }
 
 type CustomCommand = {
@@ -28,13 +51,31 @@ class MongoCrossCursor {
   namespace: string;
   collection: string;
   batchSize: number;
+  mongoDriverVersion: MongoDriverVersion;
 
-  constructor(sharedCursor: SharedCursor, client: MongoClient, namespace: string, collection: string, batchSize = 20) {
+  constructor(
+    sharedCursor: SharedCursor, 
+    client: MongoClient, 
+    namespace: string, 
+    collection: string, 
+    batchSize = 20,
+    mongoDriverVersion: MongoDriverVersion = 4
+  ) {
     this.sharedCursor = sharedCursor;
     this.client = client;
     this.namespace = namespace;
     this.collection = collection;
     this.batchSize = batchSize;
+    this.mongoDriverVersion = mongoDriverVersion;
+  }
+
+  private getFakeSession(sessionId: string): ClientSession {
+    // MongoDB Driver 4 and 5 use the same session structure
+    if (this.mongoDriverVersion === 4 || this.mongoDriverVersion === 5) {
+      return fakeSessionBuilderV4(sessionId, this.client);
+    }
+    // MongoDB Driver 6 and 7 use the same session structure
+    return fakeSessionBuilderV6(sessionId, this.client);
   }
 
   static async initiate(find : FindCursor<Document>) : Promise<MongoCrossCursor> {
@@ -51,14 +92,30 @@ class MongoCrossCursor {
     session.endSession();
 
     const symbolsProperties = Object.getOwnPropertySymbols(castedFind);
+
+    // MongoDB Driver 5 and below
     const kFilter = symbolsProperties.find(symbol => symbol.description === "filter");
     const kBuiltOptions = symbolsProperties.find(symbol => symbol.description === "builtOptions");
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const filter = castedFind[kFilter];
+    let filter = castedFind[kFilter];
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const builtOptions = castedFind[kBuiltOptions];
+    let builtOptions = castedFind[kBuiltOptions];
+
+    // MongoDB Driver 6+
+    // @ts-expect-error: cloned is not defined in the type
+    if (cloned.findOptions) {
+      // @ts-expect-error: cloned is not defined in the type
+      builtOptions = cloned.findOptions;
+    }
+
+    // MongoDB Driver 6+
+    // @ts-expect-error: cursorFilter is not defined in the type
+    if (!filter && castedFind.cursorFilter) {
+      // @ts-expect-error: cursorFilter is not defined in the type
+      filter = castedFind.cursorFilter;
+    }
 
     const _commandOptions = {
       find: cloned.namespace.collection,
@@ -86,8 +143,15 @@ class MongoCrossCursor {
       _commandOptions.projection = builtOptions.projection;
     }
 
+    // Detect MongoDB driver version from the client
+    const mongoDriverVersion = detectMongoDriverVersion(castedFind.client);
+
+    const fakeSession = mongoDriverVersion === 4 || mongoDriverVersion === 5
+      ? fakeSessionBuilderV4(sessionId, castedFind.client)
+      : fakeSessionBuilderV6(sessionId, castedFind.client);
+
     const cmd = await db.command(_commandOptions, {
-      session : fakeSessionBuilder(sessionId)
+      session : fakeSession
     });
 
     const cursorId = cmd.cursor.id.toString();
@@ -99,7 +163,9 @@ class MongoCrossCursor {
       },
       castedFind.client,
       find.namespace.db,
-      cloned.namespace.collection || ""
+      cloned.namespace.collection || "",
+      undefined,
+      mongoDriverVersion
     );
   }
 
@@ -111,7 +177,7 @@ class MongoCrossCursor {
           collection: this.collection,
           batchSize: this.batchSize,
         }, {
-          session : fakeSessionBuilder(this.sharedCursor.sessionId)
+          session : this.getFakeSession(this.sharedCursor.sessionId)
         });
       }).then((result) => {
         return result.cursor.nextBatch || [];

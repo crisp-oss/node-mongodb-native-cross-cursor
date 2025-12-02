@@ -6,20 +6,37 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        mongodb-version:
+          - "4.13.0"
+          - "5.0.0"
+          - "5.9.0"
+          - "6.0.0"
+          - "6.9.0"
+          - "7.0.0"
+          - "7.9.0"
+
     services:
       mongodb:
-        image: mongo
+        image: mongo:7
         ports:
           - 27017:27017
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           # checkout full tree
           fetch-depth: 0
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: "24"
 
-      - run: npm install
-      - run: npm run test
+      - name: Install MongoDB driver version ${{ matrix.mongodb-version }}
+        run: npm install --no-save mongodb@${{ matrix.mongodb-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests with MongoDB ${{ matrix.mongodb-version }}
+        run: npm run test
