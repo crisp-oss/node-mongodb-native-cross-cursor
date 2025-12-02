@@ -1,6 +1,6 @@
 import { Document, FindCursor, WithId, MongoClient } from "mongodb";
 
-import { fakeSessionBuilder , stringToLong } from "./utils.js";
+import { fakeSessionBuilder , stringToLong } from "./utils";
 
 interface ExtendedFindCursor extends FindCursor<WithId<Document>> {
   client: MongoClient
