@@ -1,6 +1,7 @@
-import mongoCrossCursor from "../lib/index";
+import mongoCrossCursor from "../lib/index.js";
 
 import { MongoClient, Collection } from "mongodb";
+import { it, expect, describe, beforeAll, afterAll } from "@jest/globals";
 
 type Article = {
   title : string,
@@ -24,7 +25,7 @@ describe("indexing", () => {
     try {
       // Delete articles collection
       await COLLECTION.drop();
-    } catch(e) {
+    } catch {
       // Collection could not exist
     }
 
@@ -89,15 +90,14 @@ describe("indexing", () => {
 
       const instance = await mongoCrossCursor.initiate(find);
 
-      const _articles = [];
+      const _articles: Array<Article> = [];
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const _article of instance.iterate()) {
-        _articles.push(_article);
+        _articles.push(_article as Article);
       }
 
-      expect((_articles[1] as Article).title).toBe(undefined);
-      expect((_articles[1] as Article).index).toBe(501);
+      expect(_articles[1].title).toBe(undefined);
+      expect(_articles[1].index).toBe(501);
 
       return Promise.resolve();
     });
