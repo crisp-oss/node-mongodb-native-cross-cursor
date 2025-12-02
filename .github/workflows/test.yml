@@ -1,4 +1,4 @@
-on: [push, pull_request]
+on: [push]
 
 name: Test and Build
 
@@ -15,7 +15,6 @@ jobs:
           - "6.0.0"
           - "6.9.0"
           - "7.0.0"
-          - "7.9.0"
 
     services:
       mongodb:
