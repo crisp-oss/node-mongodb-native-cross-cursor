@@ -27,7 +27,7 @@
     "url": "https://github.com/crisp-oss/node-mongodb-native-cross-cursor/issues"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p . ",
+    "build": "rm -rf dist/ && tsc -p .",
     "lint": "eslint lib test",
     "test": "npm run lint && node_modules/jest/bin/jest.js --detectOpenHandles"
   },
@@ -48,6 +48,7 @@
     "eslint": "9.39.1",
     "jest": "30.2.0",
     "ts-jest": "29.4.6",
+    "ts-jest-resolver": "2.0.1",
     "ts-node": "10.9.2",
     "tslib": "2.8.1",
     "typescript": "5.9.3"

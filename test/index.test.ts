@@ -1,4 +1,4 @@
-import mongoCrossCursor from "../lib/index";
+import mongoCrossCursor from "../lib/index.js";
 
 import { MongoClient, Collection } from "mongodb";
 import { it, expect, describe, beforeAll, afterAll } from "@jest/globals";

@@ -6,5 +6,6 @@ export default {
   ],
   testEnvironment: "node",
   preset: "ts-jest",
+  resolver: "ts-jest-resolver",
   coverageReporters: ["text-summary"]
 };
