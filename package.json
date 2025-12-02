@@ -1,6 +1,6 @@
 {
   "name": "mongodb-cross-cursor",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "type": "module",
   "author": "Baptiste Jamin <baptiste@crisp.chat> (https://crisp.chat)",
   "description": "A mongodb driver extension allowing to consume MongoDB cursors accross multiple instances",
